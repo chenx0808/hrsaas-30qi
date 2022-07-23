@@ -29,6 +29,15 @@ Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明
 // Vue.use(ElementUI)
 
+// 一次性注册所有指令
+import * as directives from '@/directives/index'
+
+// console.log(directives)
+
+for (const key in directives) {
+  // 注册指令
+  Vue.directive(key, directives[key])
+}
 Vue.config.productionTip = false
 
 new Vue({

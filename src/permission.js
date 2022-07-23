@@ -10,13 +10,21 @@ const loginPath = '/login'
 const notFoundPath = '/404'
 const whitelist = [loginPath, notFoundPath]
 // 监听路由变化
-router.beforeEach((to, from, next) => {
-  NProgress.start()
+router.beforeEach(async(to, from, next) => {
+  NProgress.start() // 开启进度条
   // 获取到token
-  const token = store.state.user.token
-  console.log(token)
+  const token = store.getters.token
+  // console.log(token)
   // 1:是否有token（是否登录）
   if (token) {
+    // 只有有token 我就获取用户信息 -->只有页面跳转  就会发请求获取用户信息
+    // 第一次进去界面的获取，路由发生的跳转的时候就不用获取
+
+    // 只要token
+    // 没有用户信息的时候
+    if (!store.getters.userId) {
+      await store.dispatch('user/getUserInfo')
+    }
     // 判断是否去登录页面
     if (to.path === loginPath) {
       next('/') // 跳转到首页
@@ -34,9 +42,9 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-// 路由结束
+// 后置守卫
 router.afterEach(function() {
   setTimeout(() => {
-    NProgress.done()
+    NProgress.done() // 关闭进度条
   }, 2000)
 })
