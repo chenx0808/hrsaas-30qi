@@ -47,8 +47,10 @@ export default {
       // 判断点击删除按钮
       if (type === 'add') {
         // 添加逻辑
+        this.$emit('handelAddDepet', this.treeData)
       } else if (type === 'edit') {
         // 编辑逻辑
+        this.$emit('handelEditDepet', this.treeData)
       } else {
         // 删除逻辑
         await this.$confirm('确认删除？')
