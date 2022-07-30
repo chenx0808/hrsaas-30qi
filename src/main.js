@@ -17,6 +17,12 @@ import router from './router'
 import '@/icons' // icon
 import '@/permission' // permission control
 
+// 时间过滤器
+import * as filters from '@/filters/index.js'
+// 所有的过滤器 进行全局注册
+for (const key in filters) {
+  Vue.filter(key, filters[key])
+}
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
@@ -46,5 +52,5 @@ new Vue({
   el: '#app',
   router,
   store,
-  render: h => h(App)
+  render: (h) => h(App)
 })
