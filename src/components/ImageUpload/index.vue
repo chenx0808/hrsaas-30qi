@@ -14,7 +14,7 @@
     >
       <i class="el-icon-plus" />
     </el-upload>
-    <el-progress style="width:200px" :percentage="percentage" />
+    <el-progress v-if="showPercent" style="width:200px" :percentage="percentage" />
     <el-dialog :visible.sync="dialogVisible">
       <img width="100%" :src="dialogImageUrl" alt="">
     </el-dialog>
@@ -32,6 +32,7 @@ export default {
   name: 'ImageUpload',
   data() {
     return {
+      showPercent: false,
       dialogImageUrl: '',
       dialogVisible: false,
       // 指定默认的图片
@@ -77,6 +78,8 @@ export default {
         this.$message.error('文件太大了')
         return false
       }
+      // 上传过程把进度条打开
+      this.showPercent = true
     },
     upload({ file }) {
       // console.log(file)
@@ -101,6 +104,11 @@ export default {
             item.upload = true
           }
         })
+        // 上传成功把进度条关闭
+        setTimeout(() => {
+          this.showPercent = false
+          this.percentage = 0
+        }, 2000)
       })
     }
   }

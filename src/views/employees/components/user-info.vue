@@ -1,5 +1,12 @@
 <template>
   <div class="user-info">
+    <el-row type="flex" justify="end">
+      <el-tooltip class="item" effect="dark" content="打印个人信息" placement="bottom-end">
+        <router-link :to="`/employees/print/${userId}?type=personal`">
+          <i class="el-icon-printer" />
+        </router-link>
+      </el-tooltip>
+    </el-row>
     <!-- 个人信息 -->
     <el-form label-width="220px">
       <!-- 工号 入职时间 -->
@@ -58,7 +65,7 @@
         <el-col :span="12">
           <el-form-item label="员工头像">
             <!-- 放置上传图片 -->
-            <ImageUpload />
+            <ImageUpload ref="avatarRef" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -90,7 +97,7 @@
 
         <el-form-item label="员工照片">
           <!-- 放置上传图片 -->
-
+          <ImageUpload ref="pranmsRef" />
         </el-form-item>
         <el-form-item label="国家/地区">
           <el-select v-model="formData.nationalArea" class="inputW2">
@@ -368,15 +375,31 @@ export default {
   methods: {
     // 保存上半部分用户信息
     async saveUser() {
+      const fileList = this.$refs.avatarRef.fileList
+      // console.log(fileList.upload)
+      if (fileList.some(item => !item.upload)) {
+        this.$message.warning('图片没有完成上传')
+        return
+      }
       await saveUserDetailById({
         ...this.userInfo,
-        id: this.userId
+        id: this.userId,
+        staffPhoto: fileList?.[0]?.url
       })
       this.$message.success('保存个人信息成功')
     },
     // 保存下半部分用户信息
     async savePersonal() {
-      await updatePersonal(this.formData)
+      const fileList = this.$refs.pranmsRef.fileList
+      // console.log(fileList.upload)
+      if (fileList.some(item => !item.upload)) {
+        this.$message.warning('图片没有完成上传')
+        return
+      }
+      await updatePersonal({
+        ...this.formData,
+        staffPhoto: fileList?.[0]?.url
+      })
       this.$message.success('保存个人基础信息成功')
     },
     // 获取上半部分用户信息
@@ -384,11 +407,22 @@ export default {
       const res = await getUserDetailById(this.userId)
       // console.log(res)
       this.userInfo = res
+      // console.log(this.$refs.avatarRef.fileList)
+      // console.log(this.userInfo)
+      this.$refs.avatarRef.fileList = [{
+        url: this.userInfo.staffPhoto,
+        upload: true
+      }]
     },
     // 获取上半部分用户信息
     async getPersonal() {
       const res = await getPersonalDetail(this.userId)
       this.formData = res
+      // console.log(this.$refs.pranmsRef.fileList)
+      this.$refs.pranmsRef.fileList = [{
+        url: this.formData.staffPhoto,
+        upload: true
+      }]
     }
   }
 }

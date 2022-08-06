@@ -16,6 +16,20 @@
         <el-table border :data="list">
           <el-table-column label="序号" sortable="" type="index" />
           <el-table-column label="姓名" sortable="" prop="username" />
+          <el-table-column label="头像">
+            <template v-slot="{row}">
+              <el-row type="flex" justify="center">
+                <el-avatar
+                  style="width:80px;height:80px"
+                  :src="row.staffPhoto"
+                  @click.native="isShowCode(row.staffPhoto)"
+                />
+                <!-- 图片加载不出来的时候会展示插槽里面的内容 -->
+              <!-- <img src="@/assets/common/bigUserHeader.png" alt=""> -->
+              </el-row>
+            </template>
+
+          </el-table-column>
           <el-table-column label="工号" sortable="" prop="workNumber" />
           <el-table-column
             :formatter="formatter"
@@ -36,7 +50,7 @@
               <el-button type="text" size="small">转正</el-button>
               <el-button type="text" size="small">调岗</el-button>
               <el-button type="text" size="small">离职</el-button>
-              <el-button type="text" size="small">角色</el-button>
+              <el-button type="text" size="small" @click="showDialog(row.id)">角色</el-button>
               <el-button type="text" size="small" @click="del(row.id)">删除</el-button>
             </template>
           </el-table-column>
@@ -59,21 +73,32 @@
       </el-card>
     </div>
     <add-employee :is-show-add-dept.sync="isShowAddDept" />
+    <el-dialog title="二维码展示" :visible.sync="showAvatar">
+      <el-row type="flex" justify="center">
+        <canvas ref="canvas" />
+      </el-row>
+    </el-dialog>
+    <AssignRole ref="roleRef" :current="current" :is-show.sync="isShow" />
   </div>
 </template>
 
 <script>
 import { getEmployeeList, delEmployee } from '@/api/employees'
 import Employees from '@/api/constant/employees'
+import Qrcode from 'qrcode'
 import addEmployee from './components/add-employee.vue'
 import { formatDate } from '@/filters'
+import AssignRole from './components/assign-role.vue'
 // import TooBar from '@/components/TooBar/index.vue'
 export default {
-  components: { addEmployee },
+  components: { addEmployee, AssignRole },
   // components: { TooBar }
   data() {
     return {
+      current: null,
       isShowAddDept: false,
+      showAvatar: false,
+      isShow: false,
       list: [], // 接数据的
       page: {
         page: 1, // 当前页码
@@ -86,6 +111,12 @@ export default {
     this.getEmpList()
   },
   methods: {
+    async showDialog(id) {
+      this.current = id
+      // console.log(111)
+      this.isShow = true
+      await this.$refs.roleRef.getUserDetailById(id)
+    },
     async exportToExcel() {
       const headers = {
         '姓名': 'username',
@@ -159,7 +190,15 @@ export default {
       } catch (e) {
         console.log(e)
       }
+    },
+    isShowCode(url) {
+      // console.log(url)
+      this.showAvatar = true
+      this.$nextTick(() => {
+        Qrcode.toCanvas(this.$refs.canvas, url)
+      })
     }
+
   }
 }
 </script>

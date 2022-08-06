@@ -8,6 +8,9 @@ import 'element-ui/lib/theme-chalk/index.css'
 import Comments from '@/components/index'
 Vue.use(Comments)
 
+import print from 'vue-print-nb'
+Vue.use(print)
+
 import '@/styles/index.scss' // global css
 
 import App from './App'
