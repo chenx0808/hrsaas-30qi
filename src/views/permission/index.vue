@@ -17,14 +17,14 @@
         <el-table-column align="center" label="操作">
           <template v-slot="{row}">
             <el-button v-if="row.type===1" type="text" @click="permisson(row.id,2)">添加</el-button>
-            <el-button type="text">编辑</el-button>
-            <el-button type="text">删除</el-button>
+            <el-button type="text" @click="editorPermission(row.id)">编辑</el-button>
+            <el-button type="text" @click="delPrevious(row.id)">删除</el-button>
           </template>
         </el-table-column>
 
       </el-table>
     </div>
-    <el-dialog title="新增权限" :visible="isShowDialog" width="800px" @close="close">
+    <el-dialog :title="`${title}权限`" :visible="isShowDialog" width="800px" @close="close">
       <el-form ref="perRef" label-width="120px" :model="formData" :rules="rules">
         <el-form-item label="权限名称" prop="name">
           <el-input v-model="formData.name" />
@@ -49,7 +49,7 @@
       </el-form>
       <el-row type="flex" justify="end">
         <el-button type="primary" @click="btnok">确定</el-button>
-        <el-button>取消</el-button>
+        <el-button @click="close">取消</el-button>
       </el-row>
     </el-dialog>
   </div>
@@ -57,8 +57,9 @@
 
 <script>
 import ToolBar from '@/components/ToolBar/index.vue'
-import { getPermissionList, addPermission } from '@/api/permisson'
+import { getPermissionList, addPermission, delPermission, getPermissionDetail, updatePermission } from '@/api/permisson'
 import { transListToTree } from '@/utils'
+
 export default {
   components: { ToolBar },
   data() {
@@ -91,20 +92,48 @@ export default {
       }
     }
   },
+  computed: {
+    title() {
+      return this.formData.id ? '编辑' : '新增'
+    }
+  },
   created() {
+    // 初始化的时候获取全部的列表数据
     this.getPermissionList()
   },
   methods: {
+    // 获取权限点击事件
+    async editorPermission(id) {
+      // 获取当前点击权限的详情
+      const res = await getPermissionDetail(id)
+      // 覆盖formData 表单就可以重显
+      this.formData = res
+      // 展示弹层
+      this.isShowDialog = true
+    },
+    // 删除权限
+    async delPrevious(id) {
+      // 删除之前先提示用户
+      await this.$confirm('确认删除')
+      // 点击确认删除之后再执行删除的操作
+      await delPermission(id)
+      // 删除成功后 通知用户
+      this.$message.success('删除成功')
+      // 删除成功后 重新获取列表数据
+      this.getPermissionList()
+    },
+    // 点击确认
     async btnok() {
       this.$refs.perRef.validate()
       try {
         if (this.formData.id) {
         // 编辑
+          await updatePermission(this.formData)
         } else {
         // 新增
           await addPermission(this.formData)
         }
-        this.$message.success('添加权限成功')
+        this.$message.success(`${this.title}权限成功`)
         this.close()
         await this.getPermissionList()
       } catch (e) {
@@ -112,6 +141,7 @@ export default {
         this.$message.error('修改失败')
       }
     },
+    // 点击取消
     close() {
       this.$refs.perRef.resetFields()
       this.formData = {
@@ -129,6 +159,7 @@ export default {
       this.formData.type = type
       this.isShowDialog = true
     },
+    // 获取全部数据
     async getPermissionList() {
       const res = await getPermissionList()
       // console.log(res)

@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 import Hamburger from '@/components/Hamburger'
 import defaultImg from '@/assets/common/bigUserHeader.png'
 
@@ -53,6 +53,9 @@ export default {
       'avatar'
     ])
   },
+  mounted() {
+    this.getUserInfo()
+  },
   methods: {
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
@@ -60,7 +63,8 @@ export default {
     async logout() {
       await this.$store.dispatch('user/logout')
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
-    }
+    },
+    ...mapActions('user', ['getUserInfo'])
   }
 }
 </script>

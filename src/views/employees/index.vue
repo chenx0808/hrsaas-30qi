@@ -51,7 +51,7 @@
               <el-button type="text" size="small">调岗</el-button>
               <el-button type="text" size="small">离职</el-button>
               <el-button type="text" size="small" @click="showDialog(row.id)">角色</el-button>
-              <el-button type="text" size="small" @click="del(row.id)">删除</el-button>
+              <el-button :disabled="checkPermission('DELETE_USER')" type="text" size="small" @click="del(row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -83,6 +83,7 @@
 </template>
 
 <script>
+import { mixins } from '@/utils/mixins'
 import { getEmployeeList, delEmployee } from '@/api/employees'
 import Employees from '@/api/constant/employees'
 import Qrcode from 'qrcode'
@@ -92,6 +93,7 @@ import AssignRole from './components/assign-role.vue'
 // import TooBar from '@/components/TooBar/index.vue'
 export default {
   components: { addEmployee, AssignRole },
+  mixins: [mixins],
   // components: { TooBar }
   data() {
     return {

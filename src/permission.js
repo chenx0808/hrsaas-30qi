@@ -23,7 +23,15 @@ router.beforeEach(async(to, from, next) => {
     // 只要token
     // 没有用户信息的时候
     if (!store.getters.userId) {
-      await store.dispatch('user/getUserInfo')
+      const res = await store.dispatch('user/getUserInfo') // 默认情况静态路由
+      // console.log(res)
+      // 添加用户拥有的路由权限之后 再去做跳转  filterRoutes
+      const routes = await store.dispatch('permission/filterRoutes', res.roles.menus)
+      // console.log(routes)
+      router.addRoutes([...routes,
+        // 404 page must be placed at the end !!!
+        { path: '*', redirect: '/404', hidden: true }])
+      next(to.path)
     }
     // 判断是否去登录页面
     if (to.path === loginPath) {
