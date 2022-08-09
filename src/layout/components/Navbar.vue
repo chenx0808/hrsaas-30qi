@@ -9,6 +9,9 @@
     <!-- <breadcrumb class="breadcrumb-container" /> -->
 
     <div class="right-menu">
+      <Lang class="item" />
+      <ThemePicker class="theme" />
+      <ScreenFull />
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
           <img v-imgError="defaultImg" :src="$store.getters.avatar" class="user-avatar">
@@ -37,10 +40,13 @@
 import { mapGetters, mapActions } from 'vuex'
 import Hamburger from '@/components/Hamburger'
 import defaultImg from '@/assets/common/bigUserHeader.png'
-
+import ScreenFull from '@/components/ScreenFull/index.vue'
+import Lang from '../../components/Lang/index.vue'
 export default {
   components: {
-    Hamburger
+    Hamburger,
+    ScreenFull,
+    Lang
   },
   data() {
     return {
@@ -116,7 +122,22 @@ export default {
     float: right;
     height: 100%;
     line-height: 50px;
+    .item{
+      position: relative;
+      top: -5px;
+      margin-right: 15px;
+    //  line-height: 20px;
 
+    }
+    .theme{
+      margin-right: 15px;
+    }
+    .svg-icon{
+       margin-right: 20px;
+       margin-bottom: 7px;
+        cursor: pointer;
+
+  }
     &:focus {
       outline: none;
     }

@@ -10,6 +10,7 @@ Vue.use(Comments)
 
 import print from 'vue-print-nb'
 Vue.use(print)
+import i18n from '@/utils/lang'
 
 import '@/styles/index.scss' // global css
 
@@ -38,7 +39,9 @@ for (const key in filters) {
 // set ElementUI lang to EN
 // Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明
-Vue.use(ElementUI)
+Vue.use(ElementUI, {
+  i18n: (key, value) => i18n.t(key, value)
+})
 
 // 一次性注册所有指令
 import * as directives from '@/directives/index'
@@ -55,5 +58,6 @@ new Vue({
   el: '#app',
   router,
   store,
+  i18n,
   render: (h) => h(App)
 })

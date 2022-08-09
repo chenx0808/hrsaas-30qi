@@ -8,13 +8,26 @@
         <el-option v-for="i in 12" :key="i" :label="`${i}月`" :value="i" />
       </el-select>
     </el-row>
-    <el-calendar v-model="value" />
+    <el-calendar v-model="value">
+      <template #dateCell="{data:{day},date}">
+        <div class="dataCell">
+          <span>{{ day|filterDay }}</span>
+          <span v-if="getDay(date)" class="rest">休</span>
+        </div>
+      </template>
+    </el-calendar>
   </div>
 </template>
 
 <script>
 export default {
   name: 'WorkCalendar',
+  filters: {
+    filterDay(value) {
+      // console.log(value)
+      return value.split('-')[2]
+    }
+  },
   props: {
     currerntDate: {
       type: Date,
@@ -51,6 +64,12 @@ export default {
       return this.currentYear + index - 5
     })
     // console.log(this.yearList)
+  },
+  methods: {
+    getDay(date) {
+      const day = date.getDay()
+      return [0, 6].includes(day)
+    }
   }
 }
 </script>
@@ -59,4 +78,20 @@ export default {
 .el-calendar__header{
   display: none;
 }
+.dataCell{
+  display: flex;
+  justify-content: space-between;
+}
+.rest{
+  width: 20px;
+  height: 20px;
+  background-color: red;
+  color:#fff;
+  font-size: 12px;
+  border-radius: 50%;
+  text-align: center;
+    line-height: 20px;
+  display: inline-block;
+}
+
 </style>

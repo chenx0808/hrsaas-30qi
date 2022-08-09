@@ -72,7 +72,7 @@
             <span>流程申请</span>
           </div>
           <div class="sideNav">
-            <el-button class="sideBtn">加班离职</el-button>
+            <el-button class="sideBtn" @click="isShowAddDept=true">加班离职</el-button>
             <el-button class="sideBtn">请假调休</el-button>
             <el-button class="sideBtn">审批列表</el-button>
             <el-button class="sideBtn">我的信息</el-button>
@@ -84,7 +84,8 @@
           <div slot="header" class="header">
             <span>绩效指数</span>
           </div>
-        <!-- 放置雷达图 -->
+          <!-- 放置雷达图 -->
+          <Radar />
         </el-card>
         <!-- 帮助连接 -->
         <el-card class="box-card">
@@ -116,22 +117,90 @@
         </el-card>
       </el-col>
     </el-row>
+    <el-dialog title="离职流程" :visible.sync="isShowAddDept" @close="close">
+      <el-form ref="ruleForm" label-width="120px" :model="ruleForm" :rules="rules">
+        <el-form-item label="离职时间" prop="exceptTime">
+          <el-date-picker
+            v-model="ruleForm.exceptTime"
+            style="width:400px"
+            type="datetime"
+            format="yyyy-MM-dd HH:mm:ss"
+          />
+        </el-form-item>
+
+        <el-form-item label="离职原因" prop="reason">
+          <el-input v-model="ruleForm.reason" style="width:400px" type="textarea" />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <el-button type="primary" @click="btnok">确定</el-button>
+        <el-button @click="close">取消</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import WorkCalendar from './components/work-calendar.vue'
-
+import Radar from './components/radar.vue'
+import { startProcess } from '@/api/approvals'
 export default {
   name: 'Dashboard',
-  components: { WorkCalendar },
+  components: { WorkCalendar, Radar },
+  data() {
+    return {
+      isShowAddDept: false, // 控制离职的弹层
+      ruleForm: {
+        exceptTime: '',
+        reason: '',
+        processName: '离职',
+        processKey: 'process_dimission' // 特定的审批
+      },
+      rules: {
+        exceptTime: [
+          {
+            required: true,
+            message: '离职时间不能为空'
+          }
+        ],
+        reason: [
+          {
+            required: true,
+            message: '离职原因不能为空'
+          }
+        ]
+      }
+    }
+  },
   computed: {
     ...mapGetters([
       'name',
       'companyName',
       'staffPhoto'
     ])
+  },
+  methods: {
+    async btnok() {
+      this.$refs.ruleForm.validate()
+      await startProcess({
+        ...this.ruleForm,
+        userId: this.$store.getters.userId
+      })
+      this.$message.success('提交流程成功')
+      this.close()
+    },
+    close() {
+      this.isShowAddDept = false
+      this.$refs.ruleForm.resetFields()
+      this.ruleForm = {
+        exceptTime: '',
+        reason: '',
+        processName: '离职',
+        processKey: 'process_dimission' // 特定的审批
+      }
+    }
   }
 
 }
